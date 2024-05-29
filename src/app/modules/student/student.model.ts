@@ -131,10 +131,6 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, 'Local guardian information is required'],
     },
     profileImg: { type: String },
-    isDeleted: {
-      type: Boolean,
-      default: false,
-    },
   },
   {
     toJSON: {
