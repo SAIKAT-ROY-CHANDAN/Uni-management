@@ -1,32 +1,39 @@
 import config from "../../config";
+import { AcademicSemester } from "../academicSemester/academic.model";
+
 import { TStudent } from "../student/student.interface";
 import { Student } from "../student/student.model";
 import { TUser } from "./user.interface";
 import { User } from "./user.model";
+import { generateStudentId } from "./user.utlis";
 
-const createStudentIntoDB = async (password: string, studentData: TStudent) => {
-    // if (await Student.isUserExists(studentData.id)) {
-    //   throw new Error('User already exists!');
-    // }
-    const userData : Partial<TUser> = {}
-    
-    userData.password = password || (config.default_password as string);
+const createStudentIntoDB = async (password: string, payload: TStudent) => {
+  const userData: Partial<TUser> = {};
 
-    userData.role = 'student'
+  userData.password = password || (config.default_password as string);
 
-    userData.id = '203010001'
+  userData.role = 'student';
 
-    const newUser = await User.create(userData);
+  const admissionSemester = await AcademicSemester.findById(
+    payload.admissionSemester,
+  );
 
-    if(Object.keys(newUser).length){
-      studentData.id = newUser.id;
-      studentData.user = newUser._id;
+  if(!admissionSemester){
+    throw new Error ("Admission Semester Not found!")
+  }
 
-      const newStudent = await Student.create(studentData);
-      return newStudent
-    }
+  userData.id = await generateStudentId(admissionSemester);
 
-  };
+  const newUser = await User.create(userData);
+
+  if (Object.keys(newUser).length) {
+    payload.id = newUser.id;
+    payload.user = newUser._id; 
+
+    const newStudent = await Student.create(payload);
+    return newStudent;
+  }
+};
 
 export const UserServices = {
     createStudentIntoDB,

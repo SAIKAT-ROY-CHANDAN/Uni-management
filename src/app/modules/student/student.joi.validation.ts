@@ -36,7 +36,7 @@ export const studentValidationSchema = Joi.object({
   email: Joi.string().email().required(),
   contactNo: Joi.string().required(),
   emergencyContactNo: Joi.string().required(),
-  bloogGroup: Joi.string().valid(
+  bloodGroup: Joi.string().valid(
     'A+',
     'A-',
     'B+',
