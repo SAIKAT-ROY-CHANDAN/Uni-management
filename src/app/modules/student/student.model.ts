@@ -56,7 +56,7 @@ const guardianSchema = new Schema<TGuardian>({
   },
 });
 
-const localGuradianSchema = new Schema<TLocalGuardian>({
+const localGuardianSchema = new Schema<TLocalGuardian>({
   name: {
     type: String,
     required: [true, 'Name is required'],
@@ -77,12 +77,16 @@ const localGuradianSchema = new Schema<TLocalGuardian>({
 
 const studentSchema = new Schema<TStudent, StudentModel>(
   {
-    id: { type: String, required: [true, 'ID is required'], unique: true },
-    user: {
-      type: Schema.Types.ObjectId, 
-      required: [true, 'User ID is required'], 
+    id: {
+      type: String,
+      required: [true, 'ID is required'],
       unique: true,
-      ref: "User"
+    },
+    user: {
+      type: Schema.Types.ObjectId,
+      required: [true, 'User id is required'],
+      unique: true,
+      ref: 'User',
     },
     name: {
       type: userNameSchema,
@@ -127,11 +131,22 @@ const studentSchema = new Schema<TStudent, StudentModel>(
       required: [true, 'Guardian information is required'],
     },
     localGuardian: {
-      type: localGuradianSchema,
+      type: localGuardianSchema,
       required: [true, 'Local guardian information is required'],
     },
     profileImg: { type: String },
-    admissionSemester: {type: Schema.Types.ObjectId, ref: 'AcademicSemester'}
+    admissionSemester: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicSemester',
+    },
+    isDeleted: {
+      type: Boolean,
+      default: false,
+    },
+    academicDepartment: {
+      type: Schema.Types.ObjectId,
+      ref: 'AcademicDepartment',
+    },
   },
   {
     toJSON: {
@@ -139,6 +154,7 @@ const studentSchema = new Schema<TStudent, StudentModel>(
     },
   },
 );
+
 
 // virtual
 studentSchema.virtual('fullName').get(function () {
