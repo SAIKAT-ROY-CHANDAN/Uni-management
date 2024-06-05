@@ -49,7 +49,9 @@ const deleteStudentFromDB = async (id: string) => {
     session.startTransaction()
 
     const deletedStudent = await Student.findOneAndUpdate(
-      { id }, { isDeleted: true }, { new: true, session }
+      { id }, 
+      { isDeleted: true }, 
+      { new: true, session }
     );
 
     if (!deletedStudent) {
@@ -57,7 +59,9 @@ const deleteStudentFromDB = async (id: string) => {
     }
 
     const deletedUser = await User.findOneAndUpdate(
-      { id }, { isDeleted: true }, { new: true, session }
+      { id },
+      { isDeleted: true },
+      { new: true, session }
     )
 
     if (!deletedUser) {
