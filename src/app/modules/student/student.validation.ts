@@ -28,24 +28,27 @@ const createLocalGuardianValidationSchema = z.object({
   address: z.string(),
 });
 
+
 // export const createStudentValidationSchema = z.object({
 //   body: z.object({
 //     password: z.string().max(20),
 //     student: z.object({
+//       id: z.string(),
+//       user: z.string(),
 //       name: createUserNameValidationSchema,
 //       gender: z.enum(['male', 'female', 'other']),
-//       dateOfBirth: z.string().optional(),
+//       dateOfBirth: z.string().optional(), 
 //       email: z.string().email(),
 //       contactNo: z.string(),
 //       emergencyContactNo: z.string(),
-//       bloogGroup: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
+//       bloodGroup: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
 //       presentAddress: z.string(),
 //       permanentAddress: z.string(),
 //       guardian: createGuardianValidationSchema,
 //       localGuardian: createLocalGuardianValidationSchema,
-//       admissionSemester: z.string(),
-//       profileImg: z.string(),
-//       academicDepartment: z.string(),
+//       academicSemester: z.string(),
+//       profileImg: z.string().optional(), 
+//       isDeleted: z.boolean(),
 //     }),
 //   }),
 // });
@@ -54,25 +57,24 @@ export const createStudentValidationSchema = z.object({
   body: z.object({
     password: z.string().max(20),
     student: z.object({
-      id: z.string(),
-      user: z.string(),
       name: createUserNameValidationSchema,
       gender: z.enum(['male', 'female', 'other']),
-      dateOfBirth: z.string().optional(), 
+      dateOfBirth: z.string().optional(),
       email: z.string().email(),
       contactNo: z.string(),
       emergencyContactNo: z.string(),
-      bloodGroup: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
+      bloogGroup: z.enum(['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-']),
       presentAddress: z.string(),
       permanentAddress: z.string(),
       guardian: createGuardianValidationSchema,
       localGuardian: createLocalGuardianValidationSchema,
       admissionSemester: z.string(),
-      profileImg: z.string().optional(), 
-      isDeleted: z.boolean(),
+      profileImg: z.string(),
+      academicDepartment: z.string(),
     }),
   }),
 });
+
 
 
 const updateUserNameValidationSchema = z.object({
