@@ -17,7 +17,7 @@ export const sendEmail = async (to: string, html: string) => {
         from: 'saikotroydev@gmail.com',
         to,
         subject: 'Change Password',
-        text: 'Reset your Password within 10 minutes',
+        text: '',
         html
     })
 
