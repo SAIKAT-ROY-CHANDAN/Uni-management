@@ -49,7 +49,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     // transaction 2 because we are also making changes in DB
     const newStudent = await Student.create([payload], { session });
 
-    if(!newStudent){
+    if (!newStudent) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create user')
     }
 
@@ -59,7 +59,7 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     return newStudent;
 
 
-  } catch (error:any) {
+  } catch (error: any) {
     await session.abortTransaction();
     await session.endSession();
     throw new Error(error)
@@ -68,54 +68,54 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
 
 };
 
-const createFacultyIntoDb = async(password: string, payload: TFaculty) => {
-      const userData:Partial<TUser> = {};
-      userData.password = password || (config.default_password as string)
+const createFacultyIntoDb = async (password: string, payload: TFaculty) => {
+  const userData: Partial<TUser> = {};
+  userData.password = password || (config.default_password as string)
 
-      userData.role = 'faculty';
-      userData.email = payload.email;
+  userData.role = 'faculty';
+  userData.email = payload.email;
 
-      const academicDepartment = await AcademicDepartment.findById(
-        payload.academicDepartment,
-      );
+  const academicDepartment = await AcademicDepartment.findById(
+    payload.academicDepartment,
+  );
 
-      if(!academicDepartment){
-        throw new AppError(400, 'Academic department not found');
-      }
+  if (!academicDepartment) {
+    throw new AppError(400, 'Academic department not found');
+  }
 
-      const session = await mongoose.startSession();
+  const session = await mongoose.startSession();
 
-      try {
-        session.startTransaction();
+  try {
+    session.startTransaction();
 
-        userData.id = await generateFacultyId();
+    userData.id = await generateFacultyId();
 
-        const newUser = await User.create([userData], {session})
+    const newUser = await User.create([userData], { session })
 
-        if(!newUser.length){
-          throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create user');
-        }
+    if (!newUser.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create user');
+    }
 
-        payload.id = newUser[0].id
-        payload.user = newUser[0]._id;
+    payload.id = newUser[0].id
+    payload.user = newUser[0]._id;
 
 
-        const newFaculty = await Faculty.create([payload], { session });
+    const newFaculty = await Faculty.create([payload], { session });
 
-        if (!newFaculty.length) {
-          throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create faculty');
-        }
-    
-        await session.commitTransaction();
-        await session.endSession();
-    
-        return newFaculty;
+    if (!newFaculty.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create faculty');
+    }
 
-      } catch (error: any) {
-        await session.abortTransaction();
-        await session.endSession();
-        throw new Error(error);
-      }
+    await session.commitTransaction();
+    await session.endSession();
+
+    return newFaculty;
+
+  } catch (error: any) {
+    await session.abortTransaction();
+    await session.endSession();
+    throw new Error(error);
+  }
 }
 
 const createAdminIntoDB = async (password: string, payload: TFaculty) => {
@@ -137,15 +137,15 @@ const createAdminIntoDB = async (password: string, payload: TFaculty) => {
     userData.id = await generateAdminId();
 
     // create a user (transaction-1)
-    const newUser = await User.create([userData], { session }); 
+    const newUser = await User.create([userData], { session });
 
     //create a admin
     if (!newUser.length) {
       throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create admin');
     }
-    
+
     payload.id = newUser[0].id;
-    payload.user = newUser[0]._id; 
+    payload.user = newUser[0]._id;
 
     // create a admin (transaction-2)
     const newAdmin = await Admin.create([payload], { session });
@@ -165,10 +165,31 @@ const createAdminIntoDB = async (password: string, payload: TFaculty) => {
   }
 };
 
+const getMe = async (userId: string, role: string) => {
+  // const decoded = verifyToken(token, config.jwt_access_secret as string);
+  // const { userId, role } = decoded;
+
+  let result = null;
+  if (role === 'student') {
+    result = await Student.findOne({ id: userId }).populate('user');
+  }
+
+  if (role === 'admin') {
+    result = await Admin.findOne({ id: userId }).populate('user');
+  }
+
+  if (role === 'faculty') {
+    result = await Faculty.findOne({ id: userId }).populate('user');
+  }
+
+  return result;
+};
+
 
 
 export const UserServices = {
   createStudentIntoDB,
   createFacultyIntoDb,
-  createAdminIntoDB
+  createAdminIntoDB,
+  getMe
 }
