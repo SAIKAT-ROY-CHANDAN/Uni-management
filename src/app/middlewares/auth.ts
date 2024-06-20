@@ -74,14 +74,3 @@ const auth = (...requiredRoles: TUserRole[]) => {
 
 export default auth
 
-// jwt.verify(token,
-//     config.jwt_access_secret as string,
-//     function (err, decoded) {
-//         if (err) {
-//             throw new AppError(
-//                 httpStatus.UNAUTHORIZED,
-//                 'You are not authorized!'
-//             )
-//         }
-
-//     })
