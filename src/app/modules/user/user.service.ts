@@ -14,8 +14,9 @@ import { TFaculty } from "../faculty/faculty.interface";
 import { AcademicDepartment } from "../academicDepartment/academicDepartment.model";
 import { Faculty } from "../faculty/faculty.model";
 import { Admin } from "../admin/admin.model";
+import { sendImageToCloudinary } from "../../utils/sendImageToCloud";
 
-const createStudentIntoDB = async (password: string, payload: TStudent) => {
+const createStudentIntoDB = async (file: any, password: string, payload: TStudent) => {
   const userData: Partial<TUser> = {};
 
   userData.password = password || (config.default_password as string);
@@ -37,6 +38,14 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
     }
 
     userData.id = await generateStudentId(admissionSemester);
+
+    const imgName = `${userData.id}${payload?.name?.firstName}`
+
+    const path = file?.path
+
+    //send image to cloudinary
+    const { secure_url } = await sendImageToCloudinary(imgName, path)
+
     // transaction 1 because we are writing in DB
     const newUser = await User.create([userData], { session });
 
@@ -46,6 +55,8 @@ const createStudentIntoDB = async (password: string, payload: TStudent) => {
 
     payload.id = newUser[0].id;
     payload.user = newUser[0]._id;
+    payload.profileImg = secure_url
+
     // transaction 2 because we are also making changes in DB
     const newStudent = await Student.create([payload], { session });
 
