@@ -22,9 +22,8 @@ export const sendImageToCloudinary = async (
         )
         .catch((error) => {
             console.log(error);
+            return null
         });
-
-    console.log(uploadResult);
 
     if (uploadResult) {
         fs.unlink('file.txt', (err) => {
@@ -35,6 +34,8 @@ export const sendImageToCloudinary = async (
             }
         })
     }
+
+    return uploadResult
 
 }
 
