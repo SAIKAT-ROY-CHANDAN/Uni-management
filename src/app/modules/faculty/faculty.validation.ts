@@ -29,11 +29,9 @@ export const createFacultyValidationSchema = z.object({
       presentAddress: z.string(),
       permanentAddress: z.string(),
       academicDepartment: z.string(),
-      profileImg: z.string(),
     }),
   }),
 });
-
 const updateUserNameValidationSchema = z.object({
   firstName: z.string().min(1).max(20).optional(),
   middleName: z.string().optional(),
