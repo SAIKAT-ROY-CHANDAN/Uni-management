@@ -8,17 +8,17 @@ export interface TUser {
     password: string;
     needsPasswordChange: boolean;
     passwordChangedAt?: Date;
-    role: "student" | "faculty" | "admin";
+    role: 'super-admin' | "student" | "faculty" | "admin";
     status: 'in-progress' | 'blocked'
     isDeleted: boolean;
 }
 export type TUserRole = keyof typeof USER_ROLE;
 
-export interface UserModel extends Model<TUser>{
-    isUserExistsByCustomId(id: string) : Promise<TUser>
-    isPasswordMatched(plainTextPassword:string, hashedPassword:string): Promise<boolean>
+export interface UserModel extends Model<TUser> {
+    isUserExistsByCustomId(id: string): Promise<TUser>
+    isPasswordMatched(plainTextPassword: string, hashedPassword: string): Promise<boolean>
     isJWTIssuedBeforePasswordChanged(
-        passwordChangedTimestamp : Date,
+        passwordChangedTimestamp: Date,
         jwtIssuedTimestamp: number
-    ) : boolean
+    ): boolean
 }
