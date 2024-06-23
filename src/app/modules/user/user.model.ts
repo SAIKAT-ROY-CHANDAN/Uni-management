@@ -16,7 +16,7 @@ export const userSchema = new Schema<TUser, UserModel>({
   role: {
     type: String,
     enum: [
-      "super-admin",
+      "superAdmin",
       "student",
       "faculty",
       "admin"

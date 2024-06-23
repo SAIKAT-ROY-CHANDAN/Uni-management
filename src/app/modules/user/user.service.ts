@@ -24,51 +24,64 @@ const createStudentIntoDB = async (file: any, password: string, payload: TStuden
   userData.role = 'student';
   userData.email = payload.email;
 
+  // find academic semester info
   const admissionSemester = await AcademicSemester.findById(
     payload.admissionSemester,
   );
 
-  const session = await mongoose.startSession()
+  if (!admissionSemester) {
+    throw new AppError(400, 'Admission semester not found');
+  }
+
+  // find department
+  const academicDepartment = await AcademicDepartment.findById(
+    payload.academicDepartment,
+  );
+
+  if (!academicDepartment) {
+    throw new AppError(400, 'Aademic department not found');
+  }
+  payload.academicFaculty = academicDepartment.academicFaculty;
+
+  const session = await mongoose.startSession();
 
   try {
-    session.startTransaction()
-
-    if (!admissionSemester) {
-      throw new AppError(httpStatus.NOT_FOUND, "Admission Semester Not found!")
-    }
-
+    session.startTransaction();
+    //set  generated id
     userData.id = await generateStudentId(admissionSemester);
 
-    const imgName = `${userData.id}${payload?.name?.firstName}`
+    if (file) {
+      const imageName = `${userData.id}${payload?.name?.firstName}`;
+      const path = file?.path;
 
-    const path = file?.path
+      //send image to cloudinary
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
 
-    //send image to cloudinary
-    const { secure_url } = await sendImageToCloudinary(imgName, path)
-
-    // transaction 1 because we are writing in DB
-    const newUser = await User.create([userData], { session });
-
-    if (!newUser.length) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create User!')
+      payload.profileImg = secure_url as string;
     }
 
-    payload.id = newUser[0].id;
-    payload.user = newUser[0]._id;
-    payload.profileImg = secure_url
+    // create a user (transaction-1)
+    const newUser = await User.create([userData], { session }); // array
 
-    // transaction 2 because we are also making changes in DB
+    //create a student
+    if (!newUser.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create user');
+    }
+    // set id , _id as user
+    payload.id = newUser[0].id;
+    payload.user = newUser[0]._id; //reference _id
+
+    // create a student (transaction-2)
     const newStudent = await Student.create([payload], { session });
 
-    if (!newStudent) {
-      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create user')
+    if (!newStudent.length) {
+      throw new AppError(httpStatus.BAD_REQUEST, 'Failed to create student');
     }
 
-    await session.commitTransaction()
-    await session.endSession()
+    await session.commitTransaction();
+    await session.endSession();
 
     return newStudent;
-
 
   } catch (error: any) {
     await session.abortTransaction();
@@ -79,7 +92,10 @@ const createStudentIntoDB = async (file: any, password: string, payload: TStuden
 
 };
 
-const createFacultyIntoDb = async (password: string, payload: TFaculty) => {
+const createFacultyIntoDb = async (
+  file: any,
+  password: string,
+  payload: TFaculty) => {
   const userData: Partial<TUser> = {};
   userData.password = password || (config.default_password as string)
 
@@ -100,6 +116,14 @@ const createFacultyIntoDb = async (password: string, payload: TFaculty) => {
     session.startTransaction();
 
     userData.id = await generateFacultyId();
+
+    if (file) {
+      const imageName = `${userData.id}${payload?.name?.firstName}`;
+      const path = file?.path;
+      
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      payload.profileImg = secure_url as string;
+    }
 
     const newUser = await User.create([userData], { session })
 
@@ -129,7 +153,10 @@ const createFacultyIntoDb = async (password: string, payload: TFaculty) => {
   }
 }
 
-const createAdminIntoDB = async (password: string, payload: TFaculty) => {
+const createAdminIntoDB = async (
+  file: any,
+  password: string,
+  payload: TFaculty) => {
   // create a user object
   const userData: Partial<TUser> = {};
 
@@ -146,6 +173,14 @@ const createAdminIntoDB = async (password: string, payload: TFaculty) => {
     session.startTransaction();
     //set  generated id
     userData.id = await generateAdminId();
+
+    if (file) {
+      const imageName = `${userData.id}${payload?.name?.firstName}`;
+      const path = file?.path;
+
+      const { secure_url } = await sendImageToCloudinary(imageName, path);
+      payload.profileImg = secure_url as string;
+    }
 
     // create a user (transaction-1)
     const newUser = await User.create([userData], { session });

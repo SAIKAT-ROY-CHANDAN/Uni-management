@@ -13,29 +13,29 @@ cloudinary.config({
 export const sendImageToCloudinary = async (
     imgName: string,
     path: string
-) => {
+): Promise<Record<string, unknown>> => {
 
-    const uploadResult = await cloudinary.uploader
-        .upload(
+
+    try {
+        const uploadResult = await cloudinary.uploader.upload(
             path,
             { public_id: imgName }
-        )
-        .catch((error) => {
-            console.log(error);
-            return null
-        });
+        );
 
-    if (uploadResult) {
-        fs.unlink('file.txt', (err) => {
+        //to delete file after upload
+        fs.unlink(path, (err) => {
             if (err) {
-                console.log(err);
+                console.error('Error deleting file:', err);
             } else {
                 console.log('File is deleted');
             }
-        })
-    }
+        });
 
-    return uploadResult
+        return uploadResult;
+    } catch (error) {
+        console.error('Upload failed:', error);
+        return { error: 'Upload failed', details: error };
+    }
 
 }
 
