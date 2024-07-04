@@ -4,75 +4,93 @@ import { OfferCourseServices } from "./OfferedCourse.service";
 import sendResponse from "../../utils/sendResponse";
 import httpStatus from "http-status";
 
-const createOfferedCourse = catchAsync(async (req:Request, res:Response) => {
-    const result = await OfferCourseServices.createOfferedCourseIntoDB(req.body);
+const createOfferedCourse = catchAsync(async (req: Request, res: Response) => {
+  const result = await OfferCourseServices.createOfferedCourseIntoDB(req.body);
 
-    sendResponse(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: "Offered Course Created successfully",
-        data: result
-    })
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Offered Course Created successfully",
+    data: result
+  })
 })
 
 const getAllOfferedCourses = catchAsync(async (req: Request, res: Response) => {
-    const result = await OfferCourseServices.getAllOfferedCoursesFromDB(req.query)
+  const result = await OfferCourseServices.getAllOfferedCoursesFromDB(req.query)
 
-      sendResponse(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: 'OfferedCourses retrieved successfully !',
-        data: result,
-      });
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'OfferedCourses retrieved successfully !',
+    data: result,
+  });
 });
 
 const getSingleOfferedCourses = catchAsync(
-    async (req: Request, res: Response) => {
+  async (req: Request, res: Response) => {
 
-      const { id } = req.params;
-        const result = await OfferCourseServices.getSingleOfferedCourseFromDB(id)
-        sendResponse(res, {
-          statusCode: httpStatus.OK,
-          success: true,
-          message: 'OfferedCourse fetched successfully',
-          data: result,
-        });
-    },
-);
-
-const updateOfferedCourse = catchAsync(async (req: Request, res: Response) => {
     const { id } = req.params;
-  
-    const result = await OfferCourseServices.updateOfferedCourseIntoDB(
-      id,
-      req.body,
-    );
+    const result = await OfferCourseServices.getSingleOfferedCourseFromDB(id)
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: 'OfferedCourse updated successfully',
+      message: 'OfferedCourse fetched successfully',
       data: result,
     });
+  },
+);
+
+const updateOfferedCourse = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const result = await OfferCourseServices.updateOfferedCourseIntoDB(
+    id,
+    req.body,
+  );
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'OfferedCourse updated successfully',
+    data: result,
+  });
 });
 
 
 const deleteOfferedCourseFromDB = catchAsync(
-    async (req: Request, res: Response) => {
-      const { id } = req.params;
-      const result = await OfferCourseServices.deleteOfferedCourseFromDB(id);
-      sendResponse(res, {
-        statusCode: httpStatus.OK,
-        success: true,
-        message: 'OfferedCourse deleted successfully',
-        data: result,
-      });
-    },
+  async (req: Request, res: Response) => {
+    const { id } = req.params;
+    const result = await OfferCourseServices.deleteOfferedCourseFromDB(id);
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: 'OfferedCourse deleted successfully',
+      data: result,
+    });
+  },
+);
+
+const getMyOfferedCourses = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user.userId;
+  const result = await OfferCourseServices.getMyOfferedCoursesFromDB(
+    userId,
+    req.query,
   );
 
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: 'OfferedCourses retrieved successfully !',
+    meta: result.meta,
+    data: result.result,
+  });
+});
+
+
 export const OfferedCourseControllers = {
-    createOfferedCourse,
-    getAllOfferedCourses,
-    getSingleOfferedCourses,
-    updateOfferedCourse,
-    deleteOfferedCourseFromDB
+  createOfferedCourse,
+  getAllOfferedCourses,
+  getSingleOfferedCourses,
+  updateOfferedCourse,
+  deleteOfferedCourseFromDB,
+  getMyOfferedCourses
 }

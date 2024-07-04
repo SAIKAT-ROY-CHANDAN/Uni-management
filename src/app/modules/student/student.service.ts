@@ -11,34 +11,33 @@ import { studentSearchableField } from './student.constant';
 
 const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
 
-  const studentQuery = new QueryBuilder(Student.find()
-    .populate('admissionSemester')
-    .populate({
-      path: 'academicDepartment',
-      populate: {
-        path: 'academicFaculty'
-      }
-    }), query)
+
+  const studentQuery = new QueryBuilder(
+    Student.find()
+      .populate('user')
+      .populate('admissionSemester')
+      .populate('academicDepartment academicFaculty'),
+    query,
+  )
     .search(studentSearchableField)
     .filter()
     .sort()
     .paginate()
     .fields()
 
-  const result = await studentQuery.modelQuery
+  const meta = await studentQuery.countTotal();
+  const result = await studentQuery.modelQuery;
 
-  return result;
+  return {
+    meta,
+    result,
+  };
 };
 
 const getSingleStudentFromDB = async (id: string) => {
   const result = await Student.findById(id)
     .populate('admissionSemester')
-    .populate({
-      path: 'academicDepartment',
-      populate: {
-        path: 'academicFaculty'
-      }
-    });
+    .populate('academicDepartment academicFaculty');
   return result;
 };
 
